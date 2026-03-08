@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runway Park Resort – Share Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: #0b1e2d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    padding: 30px 16px;
+    gap: 24px;
+  }
+
+  /* ── THE SHARE CARD ── */
+  .share-card {
+    width: 100%;
+    max-width: 480px;
+    border-radius: 28px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07);
+    animation: floatIn 0.8s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes floatIn {
+    from { opacity:0; transform:translateY(40px) scale(0.96); }
+    to   { opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  /* ── Top image section ── */
+  .card-image {
+    position: relative;
+    height: 260px;
+    background:
+      linear-gradient(180deg, rgba(5,20,35,0.1) 0%, rgba(5,20,35,0.85) 100%),
+      linear-gradient(135deg, #0a4a6e 0%, #0d7a8a 40%, #05c4d4 70%, #0a9dad 100%);
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    padding: 28px 32px;
+  }
+
+  /* Animated water waves */
+  .wave-layer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .wave-svg {
+    position: absolute;
+    bottom: 0;
+    width: 200%;
+    animation: waveMove 6s linear infinite;
+  }
+  .wave-svg.w2 { animation-duration: 9s; animation-direction: reverse; opacity: 0.5; bottom: 10px; }
+  .wave-svg.w3 { animation-duration: 12s; opacity: 0.3; bottom: 20px; }
+
+  @keyframes waveMove {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* Floating bubbles */
+  .bubbles { position: absolute; inset: 0; pointer-events: none; }
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    animation: bubbleRise linear infinite;
+  }
+  .bubble:nth-child(1)  { width:8px;height:8px;  left:12%; animation-duration:5s;  animation-delay:0s; }
+  .bubble:nth-child(2)  { width:5px;height:5px;  left:28%; animation-duration:7s;  animation-delay:1s; }
+  .bubble:nth-child(3)  { width:10px;height:10px;left:45%; animation-duration:6s;  animation-delay:2s; }
+  .bubble:nth-child(4)  { width:6px;height:6px;  left:62%; animation-duration:8s;  animation-delay:0.5s; }
+  .bubble:nth-child(5)  { width:4px;height:4px;  left:78%; animation-duration:5.5s;animation-delay:3s; }
+  .bubble:nth-child(6)  { width:7px;height:7px;  left:88%; animation-duration:6.5s;animation-delay:1.5s; }
+
+  @keyframes bubbleRise {
+    0%   { transform: translateY(260px) scale(1); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 0.6; }
+    100% { transform: translateY(-20px) scale(1.3); opacity: 0; }
+  }
+
+  /* Pool emoji art */
+  .pool-art {
+    position: absolute;
+    top: 24px; right: 28px;
+    font-size: 3.5rem;
+    filter: drop-shadow(0 4px 20px rgba(0,200,230,0.4));
+    animation: bobble 3s ease-in-out infinite;
+  }
+  @keyframes bobble {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50%      { transform: translateY(-8px) rotate(3deg); }
+  }
+
+  /* Stars decoration */
+  .stars {
+    position: absolute;
+    top: 18px; left: 28px;
+    display: flex; gap: 4px;
+  }
+  .star { color: #ffd700; font-size: 0.85rem; }
+
+  .card-image-text { position: relative; z-index: 2; }
+  .resort-tag {
+    display: inline-block;
+    background: rgba(255,215,0,0.15);
+    border: 1px solid rgba(255,215,0,0.4);
+    color: #ffd700;
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    font-weight: 400;
+  }
+  .card-image-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: #fff;
+    line-height: 1.1;
+    font-weight: 700;
+  }
+  .card-image-text h1 em {
+    font-style: italic;
+    color: #7ef0f7;
+  }
+
+  /* ── Card body ── */
+  .card-body {
+    background: #ffffff;
+    padding: 28px 32px 32px;
+  }
+
+  .tagline {
+    font-size: 1.05rem;
+    color: #0a3d5c;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 6px;
+  }
+
+  .message {
+    font-size: 0.88rem;
+    color: #4a6070;
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 22px;
+  }
+
+  /* Features pills */
+  .features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .pill {
+    background: #e8f9fb;
+    color: #0a7a8a;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    border: 1px solid #b8eaf0;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d0eef3, transparent);
+    margin-bottom: 22px;
+  }
+
+  /* Location row */
+  .location-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .location-icon { font-size: 1rem; }
+  .location-text { font-size: 0.78rem; color: #4a6070; font-weight: 300; }
+  .location-text strong { color: #0a3d5c; font-weight: 500; }
+
+  /* CTA button */
+  .cta-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #0fa3b1 0%, #0a6e7a 100%);
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    box-shadow: 0 8px 28px rgba(15,163,177,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    margin-bottom: 14px;
+  }
+  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(15,163,177,0.5); }
+
+  .url-display {
+    text-align: center;
+    font-size: 0.7rem;
+    color: #8aabb8;
+    letter-spacing: 0.06em;
+    word-break: break-all;
+  }
+
+  /* ── Share buttons below card ── */
+  .share-section {
+    width: 100%;
+    max-width: 480px;
+    animation: floatIn 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s both;
+  }
+
+  .share-title {
+    text-align: center;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 14px;
+    font-weight: 300;
+  }
+
+  .share-btns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .share-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 400;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    backdrop-filter: blur(10px);
+  }
+  .share-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); transform: translateY(-2px); }
+
+  .share-btn.whatsapp { border-color: rgba(37,211,102,0.3); }
+  .share-btn.whatsapp:hover { background: rgba(37,211,102,0.12); border-color: rgba(37,211,102,0.5); }
+  .share-btn.copy:hover { background: rgba(15,163,177,0.12); border-color: rgba(15,163,177,0.5); }
+
+  .copied-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #0fa3b1;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s;
+    opacity: 0;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .copied-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     THE SHAREABLE CARD
+══════════════════════════════ -->
+<div class="share-card" id="share-card">
+
+  <!-- Image / Hero section -->
+  <div class="card-image">
+    <div class="wave-layer">
+      <svg class="wave-svg" viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,40 C180,70 360,10 540,40 C720,70 900,10 1080,40 C1260,70 1350,30 1440,40 L1440,80 L0,80 Z" fill="rgba(255,255,255,0.08)"/>
+      </svg>
+      <svg class="wave-svg w2" viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,40 C200,10 400,70 600,40 C800,10 1000,70 1200,40 C1320,20 1380,50 1440,40 L1440,80 L0,80 Z" fill="rgba(255,255,255,0.06)"/>
+      </svg>
+      <svg class="wave-svg w3" viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,50 C150,20 350,80 550,50 C750,20 950,80 1150,50 C1300,30 1380,60 1440,50 L1440,80 L0,80 Z" fill="rgba(255,255,255,0.05)"/>
+      </svg>
+    </div>
+
+    <div class="bubbles">
+      <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+      <div class="bubble"></div><div class="bubble"></div><div class="bubble"></div>
+    </div>
+
+    <div class="stars">
+      <span class="star">★</span><span class="star">★</span><span class="star">★</span>
+      <span class="star">★</span><span class="star">★</span>
+    </div>
+
+    <div class="pool-art">🏊</div>
+
+    <div class="card-image-text">
+      <div class="resort-tag">✦ Now Open for Bookings</div>
+      <h1>Runway <em>Park</em><br>Resort</h1>
+    </div>
+  </div>
+
+  <!-- Card body -->
+  <div class="card-body">
+
+    <div class="tagline">💦 Dive into the ultimate pool experience!</div>
+    <div class="message">
+      Book your swimming pool session online in just 2 minutes. Choose your pool, pick your date, and pay instantly — all from your phone. No queues, no waiting!
+    </div>
+
+    <div class="features">
+      <span class="pill">🌊 Leisure Pool</span>
+      <span class="pill">🏝️ Infinity Pool</span>
+      <span class="pill">🦆 Kids Pool</span>
+      <span class="pill">🌀 Wave Pool</span>
+      <span class="pill">⚡ Instant Booking</span>
+      <span class="pill">📱 UPI Payment</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="location-row">
+      <span class="location-icon">📍</span>
+      <span class="location-text"><strong>Chandi Nalanda</strong> &nbsp;·&nbsp; Runway Park Resort</span>
+    </div>
+
+    <a class="cta-btn" href="https://runwayparkresort.github.io/runway-park-resort-booking/" target="_blank">
+      🏊&nbsp; Book Your Pool Session Now
+    </a>
+
+
+
+  </div>
+</div>
+
+<!-- Share buttons -->
+<div class="share-section">
+  <div class="share-title">Share this with friends & family</div>
+  <div class="share-btns">
+
+    <a class="share-btn whatsapp" id="btn-whatsapp" href="#" target="_blank">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp
+    </a>
+
+    <button class="share-btn copy" onclick="copyLink()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0fa3b1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Copy Link
+    </button>
+
+    <a class="share-btn" id="btn-sms" href="#">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      SMS
+    </a>
+
+    <a class="share-btn" id="btn-email" href="#">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Email
+    </a>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="copied-toast" id="toast">✅ Link copied to clipboard!</div>
+
+<script>
+  const BOOKING_URL = 'https://runwayparkresort.github.io/runway-park-resort-booking/';
+
+  const shareMsg = `🏊 *Runway Park Resort – Pool Booking*\n\n💦 Dive into the ultimate pool experience at *Chandi Nalanda*!\n\n✅ Leisure Pool · Infinity Pool · Kids Pool · Wave Pool\n⚡ Instant online booking\n📱 Pay via UPI QR code\n\n👇 Book your session now:\n${BOOKING_URL}`;
+
+  // WhatsApp
+  document.getElementById('btn-whatsapp').href =
+    `https://wa.me/?text=${encodeURIComponent(shareMsg)}`;
+
+  // SMS
+  document.getElementById('btn-sms').href =
+    `sms:?body=${encodeURIComponent(shareMsg)}`;
+
+  // Email
+  document.getElementById('btn-email').href =
+    `mailto:?subject=${encodeURIComponent('🏊 Book Your Pool Session – Runway Park Resort')}&body=${encodeURIComponent(shareMsg)}`;
+
+  // Copy link
+  function copyLink() {
+    navigator.clipboard.writeText(BOOKING_URL).then(() => {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
+    }).catch(() => {
+      // fallback
+      const el = document.createElement('textarea');
+      el.value = BOOKING_URL;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2800);
+    });
+  }
+</script>
+
+</body>
+</html>
