@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runway Park Resort – Pool Booking</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ocean: #0a3d5c;
+    --aqua: #0fa3b1;
+    --foam: #e8f9fb;
+    --sand: #f5ede0;
+    --gold: #c9a84c;
+    --deep: #061e2f;
+    --white: #ffffff;
+    --soft: #b8dce8;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--deep);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--white);
+  }
+
+  /* ── Animated water background ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 120% 60% at 50% 110%, #0fa3b144 0%, transparent 70%),
+      radial-gradient(ellipse 80% 40% at 20% 80%, #0a3d5c88 0%, transparent 60%),
+      linear-gradient(175deg, #061e2f 0%, #0a3d5c 50%, #061e2f 100%);
+    z-index: 0;
+  }
+
+  /* ripple circles */
+  .ripples {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(15,163,177,0.15);
+    animation: rippleOut 8s ease-out infinite;
+  }
+  .ripple:nth-child(1) { width:300px;height:300px; bottom:-80px;left:10%; animation-delay:0s; }
+  .ripple:nth-child(2) { width:500px;height:500px; bottom:-180px;left:5%; animation-delay:2s; }
+  .ripple:nth-child(3) { width:700px;height:700px; bottom:-280px;left:0%; animation-delay:4s; }
+  .ripple:nth-child(4) { width:200px;height:200px; bottom:-50px;right:15%; animation-delay:1s; }
+  .ripple:nth-child(5) { width:400px;height:400px; bottom:-130px;right:10%; animation-delay:3s; }
+
+  @keyframes rippleOut {
+    0%   { transform: scale(0.8); opacity: 0.6; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+
+  /* ── Header ── */
+  header {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 52px 20px 36px;
+  }
+
+  .resort-badge {
+    display: inline-block;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Jost', sans-serif;
+    font-weight: 300;
+    font-size: 0.68rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: 6px 18px;
+    margin-bottom: 18px;
+    border-radius: 2px;
+  }
+
+  header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: var(--white);
+    line-height: 1.1;
+  }
+
+  header h1 span { color: var(--aqua); font-weight: 600; }
+
+  .sub-location {
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    color: var(--soft);
+    margin-top: 10px;
+    text-transform: uppercase;
+    font-weight: 200;
+  }
+
+  .wave-divider {
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    position: relative;
+    z-index: 10;
+  }
+  .wave-divider svg { display: block; }
+
+  /* ── Steps bar ── */
+  .steps-bar {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 0 20px 36px;
+    background: #ffffff0a;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    font-weight: 300;
+    transition: color 0.4s;
+  }
+  .step-item.active { color: var(--aqua); }
+  .step-item.done   { color: var(--gold); }
+
+  .step-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+    transition: background 0.4s, border-color 0.4s;
+  }
+  .step-item.active .step-num { background: var(--aqua); border-color: var(--aqua); color: #fff; }
+  .step-item.done   .step-num { background: var(--gold); border-color: var(--gold); color: #fff; }
+
+  .step-line {
+    width: 48px; height: 1px;
+    background: rgba(255,255,255,0.15);
+    flex-shrink: 0;
+  }
+
+  /* ── Container ── */
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    padding: 44px 48px;
+    animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes cardIn {
+    from { opacity:0; transform: translateY(32px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.9rem;
+    font-weight: 400;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+  .card-sub {
+    font-size: 0.78rem;
+    color: var(--soft);
+    letter-spacing: 0.06em;
+    margin-bottom: 36px;
+    font-weight: 300;
+  }
+
+  /* ── Form ── */
+  .form-row { display: flex; gap: 20px; }
+  .form-row .field { flex: 1; }
+
+  .field {
+    margin-bottom: 24px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--soft);
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+
+  .field input,
+  .field select {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--white);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+    appearance: none;
+  }
+
+  .field input::placeholder { color: rgba(255,255,255,0.25); }
+
+  .field input:focus,
+  .field select:focus {
+    border-color: var(--aqua);
+    background: rgba(15,163,177,0.08);
+    box-shadow: 0 0 0 3px rgba(15,163,177,0.12);
+  }
+
+  .field select option { background: #0a3d5c; }
+
+  .field .error-msg {
+    color: #ff7b7b;
+    font-size: 0.72rem;
+    margin-top: 5px;
+    display: none;
+    letter-spacing: 0.05em;
+  }
+  .field.has-error input,
+  .field.has-error select { border-color: #ff7b7b; }
+  .field.has-error .error-msg { display: block; }
+
+  /* Pool section label */
+  .section-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--aqua);
+    margin: 8px 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(15,163,177,0.2);
+  }
+
+  /* Pool cards */
+  .pool-grid { display: flex; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; }
+
+  .pool-card {
+    flex: 1;
+    min-width: 140px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px;
+    padding: 18px 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: rgba(255,255,255,0.03);
+    text-align: center;
+  }
+  .pool-card:hover { border-color: var(--aqua); background: rgba(15,163,177,0.07); }
+  .pool-card.selected { border-color: var(--aqua); background: rgba(15,163,177,0.14); box-shadow: 0 0 0 2px rgba(15,163,177,0.25); }
+
+  .pool-card .pool-icon { font-size: 2rem; margin-bottom: 8px; }
+  .pool-card .pool-name { font-size: 0.8rem; color: var(--white); font-weight: 400; letter-spacing: 0.04em; }
+  .pool-card .pool-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    color: var(--gold);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* Ticket qty */
+  .qty-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .qty-label { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--soft); }
+  .qty-ctrl {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 30px;
+    padding: 6px 14px;
+  }
+  .qty-btn {
+    background: none;
+    border: none;
+    color: var(--aqua);
+    font-size: 1.3rem;
+    cursor: pointer;
+    line-height: 1;
+    width: 24px;
+    text-align: center;
+    transition: color 0.2s;
+  }
+  .qty-btn:hover { color: var(--gold); }
+  #qty-display { font-size: 1.05rem; font-weight: 400; min-width: 24px; text-align: center; }
+
+  /* Total */
+  .total-bar {
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+  }
+  .total-bar .total-label { font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--soft); }
+  .total-bar .total-amt {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.7rem;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  /* Submit button */
+  .btn-submit {
+    width: 100%;
+    padding: 17px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--aqua) 0%, #0a7a86 100%);
+    color: var(--white);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    box-shadow: 0 8px 32px rgba(15,163,177,0.3);
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(15,163,177,0.45); }
+  .btn-submit:active { transform: translateY(0); }
+
+  /* ── Payment / QR screen ── */
+  #screen-payment { display: none; animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both; }
+
+  .qr-wrapper {
+    text-align: center;
+    margin: 0 0 30px;
+  }
+
+  .qr-frame {
+    display: inline-block;
+    padding: 20px;
+    background: var(--white);
+    border-radius: 18px;
+    box-shadow: 0 0 60px rgba(15,163,177,0.25);
+    position: relative;
+  }
+
+  .qr-frame canvas { display: block; }
+
+  .qr-frame::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 21px;
+    border: 2px solid var(--aqua);
+    animation: qrPulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes qrPulse {
+    0%,100% { opacity:0.4; transform:scale(1); }
+    50%      { opacity:1;   transform:scale(1.015); }
+  }
+
+  .qr-notice {
+    font-size: 0.75rem;
+    color: var(--soft);
+    margin-top: 16px;
+    letter-spacing: 0.06em;
+  }
+
+  /* Summary table */
+  .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  .summary-table td { padding: 10px 0; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .summary-table td:first-child { color: var(--soft); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .summary-table td:last-child { text-align: right; font-weight: 400; }
+  .summary-table .total-row td { border-bottom: none; color: var(--gold); font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; }
+
+  .btn-done {
+    width: 100%;
+    padding: 17px;
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--gold);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    margin-top: 10px;
+  }
+  .btn-done:hover { background: var(--gold); color: var(--deep); }
+
+  /* ── Success screen ── */
+  #screen-success {
+    display: none;
+    text-align: center;
+    animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  .success-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    animation-delay: 0.2s;
+  }
+  @keyframes popIn { from{transform:scale(0); opacity:0;} to{transform:scale(1); opacity:1;} }
+
+  .success-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    margin-bottom: 10px;
+  }
+  .success-sub {
+    font-size: 0.82rem;
+    color: var(--soft);
+    line-height: 1.7;
+    letter-spacing: 0.05em;
+    margin-bottom: 32px;
+  }
+
+  .booking-ref {
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-bottom: 30px;
+    text-transform: uppercase;
+  }
+
+  .btn-restart {
+    background: linear-gradient(135deg, var(--aqua) 0%, #0a7a86 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 40px;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(15,163,177,0.4); }
+
+  /* ── Utility ── */
+  .hidden { display: none !important; }
+
+  @media(max-width:560px) {
+    .card { padding: 30px 22px; }
+    .form-row { flex-direction: column; gap: 0; }
+    .step-item span { display: none; }
+    .step-line { width: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ripples">
+  <div class="ripple"></div><div class="ripple"></div><div class="ripple"></div>
+  <div class="ripple"></div><div class="ripple"></div>
+</div>
+
+<header>
+  <div class="resort-badge">✦ Chandi Nalanda</div>
+  <h1>Runway <span>Park</span> Resort</h1>
+  <p class="sub-location">Swimming Pool Booking Portal</p>
+</header>
+
+<div class="wave-divider">
+  <svg viewBox="0 0 1440 40" preserveAspectRatio="none" height="40" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,20 C240,40 480,0 720,20 C960,40 1200,0 1440,20 L1440,40 L0,40 Z"
+          fill="rgba(255,255,255,0.04)"/>
+  </svg>
+</div>
+
+<!-- Steps bar -->
+<div class="steps-bar">
+  <div class="step-item active" id="step1">
+    <div class="step-num">1</div><span>Registration</span>
+  </div>
+  <div class="step-line"></div>
+  <div class="step-item" id="step2">
+    <div class="step-num">2</div><span>Payment</span>
+  </div>
+  <div class="step-line"></div>
+  <div class="step-item" id="step3">
+    <div class="step-num">3</div><span>Confirmed</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── SCREEN 1: Registration ── -->
+  <div id="screen-registration">
+    <div class="card">
+      <div class="card-title">Guest Registration</div>
+      <div class="card-sub">Please fill in your details to proceed with the booking</div>
+
+      <div class="form-row">
+        <div class="field" id="f-name">
+          <label>Full Name</label>
+          <input type="text" id="inp-name" placeholder="e.g. Arjun Sharma">
+          <div class="error-msg">Please enter your full name.</div>
+        </div>
+        <div class="field" id="f-age">
+          <label>Age</label>
+          <input type="number" id="inp-age" placeholder="e.g. 28" min="1" max="120">
+          <div class="error-msg">Enter a valid age (1–120).</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field" id="f-sex">
+          <label>Gender</label>
+          <select id="inp-sex">
+            <option value="" disabled selected>Select gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Non-binary">Non-binary</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
+          <div class="error-msg">Please select your gender.</div>
+        </div>
+        <div class="field" id="f-phone">
+          <label>Phone Number</label>
+          <input type="tel" id="inp-phone" placeholder="e.g. +91 98765 43210">
+          <div class="error-msg">Enter a valid phone number.</div>
+        </div>
+      </div>
+
+      <div class="field" id="f-address">
+        <label>Address</label>
+        <input type="text" id="inp-address" placeholder="Street, City, State">
+        <div class="error-msg">Please enter your address.</div>
+      </div>
+
+      <div class="field" id="f-date">
+        <label>Visit Date</label>
+        <input type="date" id="inp-date">
+        <div class="error-msg">Please select your visit date.</div>
+      </div>
+
+      <!-- Pool selection -->
+      <div class="section-label">🏊 Choose Pool Type</div>
+
+      <div class="pool-grid" id="pool-grid">
+        <div class="pool-card" data-pool="Leisure Pool" data-price="350" onclick="selectPool(this)">
+          <div class="pool-icon">🌊</div>
+          <div class="pool-name">Leisure Pool</div>
+          <div class="pool-price">₹350 / head</div>
+        </div>
+        <div class="pool-card" data-pool="Infinity Pool" data-price="550" onclick="selectPool(this)">
+          <div class="pool-icon">🏝️</div>
+          <div class="pool-name">Infinity Pool</div>
+          <div class="pool-price">₹550 / head</div>
+        </div>
+        <div class="pool-card" data-pool="Kids Pool" data-price="200" onclick="selectPool(this)">
+          <div class="pool-icon">🦆</div>
+          <div class="pool-name">Kids Pool</div>
+          <div class="pool-price">₹200 / head</div>
+        </div>
+        <div class="pool-card" data-pool="Wave Pool" data-price="450" onclick="selectPool(this)">
+          <div class="pool-icon">🌀</div>
+          <div class="pool-name">Wave Pool</div>
+          <div class="pool-price">₹450 / head</div>
+        </div>
+      </div>
+      <div id="pool-error" style="color:#ff7b7b;font-size:0.72rem;margin-top:-14px;margin-bottom:20px;display:none;">Please select a pool type.</div>
+
+      <!-- Quantity -->
+      <div class="qty-row">
+        <span class="qty-label">Number of Tickets</span>
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="changeQty(-1)">−</button>
+          <span id="qty-display">1</span>
+          <button class="qty-btn" onclick="changeQty(1)">+</button>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="total-bar">
+        <span class="total-label">Amount Payable</span>
+        <span class="total-amt" id="total-display">₹ —</span>
+      </div>
+
+      <button class="btn-submit" onclick="submitRegistration()">Proceed to Payment →</button>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 2: Payment QR ── -->
+  <div id="screen-payment">
+    <div class="card">
+      <div class="card-title">Complete Payment</div>
+      <div class="card-sub">Scan the QR code below using any UPI app to pay</div>
+
+      <div class="qr-wrapper">
+        <div class="qr-frame">
+          <canvas id="qr-canvas" width="200" height="200"></canvas>
+        </div>
+        <div class="qr-notice">UPI · GPay · PhonePe · Paytm · Any UPI app</div>
+      </div>
+
+      <table class="summary-table" id="summary-table"></table>
+
+      <button class="btn-submit" onclick="confirmPayment()">✓ &nbsp;Payment Done – Confirm Booking</button>
+      <button class="btn-done" onclick="goBack()">← Go Back</button>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 3: Success ── -->
+  <div id="screen-success">
+    <div class="card">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">Booking Confirmed!</div>
+      <div class="success-sub">
+        Thank you for choosing <strong>Runway Park Resort</strong>.<br>
+        Your pool session at <strong>Chandi Nalanda</strong> is all set.<br>
+        Please show this confirmation at the entry gate.
+      </div>
+      <div class="booking-ref" id="booking-ref">Booking Ref: —</div>
+      <button class="btn-restart" onclick="restart()">Book Another Session</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Tiny QR generator (pure JS, no external lib needed) ── -->
+<script>
+/* ── QR Code generator (MIT, minimal implementation for UPI strings) ──
+   For a real app, use qrcode.js or similar. Here we draw a placeholder
+   that visually represents a QR and encodes the UPI string via a public
+   chart API rendered via canvas image.
+*/
+
+// State
+let selectedPool = null;
+let qty = 1;
+
+function selectPool(el) {
+  document.querySelectorAll('.pool-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPool = { name: el.dataset.pool, price: parseInt(el.dataset.price) };
+  updateTotal();
+  document.getElementById('pool-error').style.display = 'none';
+}
+
+function changeQty(delta) {
+  qty = Math.max(1, Math.min(20, qty + delta));
+  document.getElementById('qty-display').textContent = qty;
+  updateTotal();
+}
+
+function updateTotal() {
+  const amt = selectedPool ? selectedPool.price * qty : null;
+  document.getElementById('total-display').textContent = amt ? `₹ ${amt.toLocaleString('en-IN')}` : '₹ —';
+}
+
+// Validation helper
+function validate(id, condition) {
+  const field = document.getElementById('f-' + id);
+  if (!condition) { field.classList.add('has-error'); return false; }
+  field.classList.remove('has-error'); return true;
+}
+
+function submitRegistration() {
+  const name    = document.getElementById('inp-name').value.trim();
+  const age     = parseInt(document.getElementById('inp-age').value);
+  const sex     = document.getElementById('inp-sex').value;
+  const phone   = document.getElementById('inp-phone').value.trim();
+  const address = document.getElementById('inp-address').value.trim();
+  const date    = document.getElementById('inp-date').value;
+
+  let ok = true;
+  ok = validate('name', name.length >= 2) && ok;
+  ok = validate('age', age >= 1 && age <= 120) && ok;
+  ok = validate('sex', sex !== '') && ok;
+  ok = validate('phone', phone.length >= 6) && ok;
+  ok = validate('address', address.length >= 4) && ok;
+  ok = validate('date', date !== '') && ok;
+
+  if (!selectedPool) {
+    document.getElementById('pool-error').style.display = 'block';
+    ok = false;
+  }
+
+  if (!ok) return;
+
+  // Build summary
+  const total = selectedPool.price * qty;
+  const visitDate = new Date(date).toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'});
+
+  window.bookingData = { name, age, sex, phone, address, date: visitDate, pool: selectedPool.name, price: selectedPool.price, qty, total };
+
+  showPayment();
+}
+
+function showPayment() {
+  const d = window.bookingData;
+
+  // Build summary table
+  const rows = [
+    ['Guest Name', d.name],
+    ['Age', d.age],
+    ['Gender', d.sex],
+    ['Phone', d.phone],
+    ['Visit Date', d.date],
+    ['Pool Type', d.pool],
+    ['Tickets', d.qty + ' × ₹' + d.price.toLocaleString('en-IN')],
+  ];
+  let html = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+  html += `<tr class="total-row"><td>Total Payable</td><td>₹ ${d.total.toLocaleString('en-IN')}</td></tr>`;
+  document.getElementById('summary-table').innerHTML = html;
+
+  // Generate QR code
+  generateQR(d);
+
+  // Switch screens
+  document.getElementById('screen-registration').style.display = 'none';
+  document.getElementById('screen-payment').style.display = 'block';
+  document.getElementById('screen-success').style.display = 'none';
+
+  setStep(2);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function generateQR(d) {
+  // UPI deep-link string
+  const upiId  = 'runwaypark@upi';       // replace with real UPI ID
+  const upiStr = `upi://pay?pa=${upiId}&pn=Runway+Park+Resort&am=${d.total}&cu=INR&tn=Pool+Booking+${encodeURIComponent(d.name)}`;
+
+  const canvas = document.getElementById('qr-canvas');
+  const ctx    = canvas.getContext('2d');
+  const size   = 200;
+
+  // Use Google Charts API image as QR (loads via img then draws to canvas)
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => { ctx.clearRect(0,0,size,size); ctx.drawImage(img,0,0,size,size); };
+  img.onerror = () => {
+    // Fallback: draw a stylized placeholder if network unavailable
+    drawFallbackQR(ctx, size);
+  };
+  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiStr)}&color=061e2f&bgcolor=ffffff&margin=0`;
+}
+
+function drawFallbackQR(ctx, size) {
+  // Decorative fallback QR pattern
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  const cell = 10;
+  const cols = size / cell;
+  ctx.fillStyle = '#061e2f';
+  // seed-based pseudo-random pattern
+  const seed = 42;
+  for (let r = 0; r < cols; r++) for (let c = 0; c < cols; c++) {
+    const v = Math.sin(seed + r * 17 + c * 31) * 10000;
+    if ((v - Math.floor(v)) > 0.5) ctx.fillRect(c*cell, r*cell, cell, cell);
+  }
+  // Corner markers
+  [[0,0],[cols-7,0],[0,cols-7]].forEach(([cx,cy]) => {
+    ctx.fillStyle = '#061e2f';
+    ctx.fillRect(cx*cell, cy*cell, 7*cell, 7*cell);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect((cx+1)*cell, (cy+1)*cell, 5*cell, 5*cell);
+    ctx.fillStyle = '#061e2f';
+    ctx.fillRect((cx+2)*cell, (cy+2)*cell, 3*cell, 3*cell);
+  });
+  ctx.fillStyle = '#0fa3b1';
+  ctx.font = 'bold 11px Jost, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('UPI QR', size/2, size/2 + 4);
+}
+
+function confirmPayment() {
+  const ref = 'RPR-' + Date.now().toString(36).toUpperCase();
+  document.getElementById('booking-ref').textContent = 'Booking Ref: ' + ref;
+
+  document.getElementById('screen-registration').style.display = 'none';
+  document.getElementById('screen-payment').style.display = 'none';
+  document.getElementById('screen-success').style.display = 'block';
+
+  setStep(3);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function goBack() {
+  document.getElementById('screen-payment').style.display = 'none';
+  document.getElementById('screen-registration').style.display = 'block';
+  setStep(1);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function restart() {
+  document.getElementById('screen-success').style.display = 'none';
+  document.getElementById('screen-registration').style.display = 'block';
+  // reset form
+  ['inp-name','inp-age','inp-phone','inp-address','inp-date'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inp-sex').selectedIndex = 0;
+  selectedPool = null; qty = 1;
+  document.getElementById('qty-display').textContent = '1';
+  document.getElementById('total-display').textContent = '₹ —';
+  document.querySelectorAll('.pool-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.field').forEach(f => f.classList.remove('has-error'));
+  setStep(1);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function setStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('step' + i);
+    el.classList.remove('active','done');
+    if (i < n)  el.classList.add('done');
+    if (i === n) el.classList.add('active');
+  }
+}
+
+// Set min date to today
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('inp-date').min = today;
+});
+</script>
+</body>
+</html>
