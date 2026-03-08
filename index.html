@@ -1006,7 +1006,7 @@ function confirmPayment() {
   document.getElementById('screen-success').style.display = 'block';
 
   // ── Save to Google Sheet ──
-  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwni_6QHysH_ptjePTNOLysnSiDCTIaSgeEUgqDjOAenc9FuAL_wWGf17YhGV4ba_KCBQ/exec';
+  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwfBY0keGDI7S5S-Qyv4IYZLookOr4PgIHuUSMhFBJEUtdDWshEGgk7bWUUByE94MwGhw/exec';
 
   const params = new URLSearchParams({
     ref:       ref,
@@ -1018,14 +1018,13 @@ function confirmPayment() {
     address:   document.getElementById('inp-address').value.trim(),
     visitDate: visitDate,
     pool:      pool,
-    qty:       qty,
-    total:     total
+    qty:       String(qty),
+    total:     String(total)
   });
 
-  fetch(SHEET_URL + '?' + params.toString(), {
-    method: 'GET',
-    mode:   'no-cors'
-  }).catch(() => {});
+  // Use image trick to bypass CORS — works 100% from static pages
+  const img = new Image();
+  img.src = SHEET_URL + '?' + params.toString();
   // ── End Save ──
 
   setStep(3);
