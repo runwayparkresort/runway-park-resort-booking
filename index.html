@@ -1005,6 +1005,29 @@ function confirmPayment() {
   document.getElementById('screen-payment').style.display = 'none';
   document.getElementById('screen-success').style.display = 'block';
 
+  // ── Save to Google Sheet ──
+  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwni_6QHysH_ptjePTNOLysnSiDCTIaSgeEUgqDjOAenc9FuAL_wWGf17YhGV4ba_KCBQ/exec';
+
+  const params = new URLSearchParams({
+    ref:       ref,
+    timestamp: ts,
+    name:      name,
+    age:       age,
+    gender:    document.getElementById('inp-sex').value,
+    phone:     phone,
+    address:   document.getElementById('inp-address').value.trim(),
+    visitDate: visitDate,
+    pool:      pool,
+    qty:       qty,
+    total:     total
+  });
+
+  fetch(SHEET_URL + '?' + params.toString(), {
+    method: 'GET',
+    mode:   'no-cors'
+  }).catch(() => {});
+  // ── End Save ──
+
   setStep(3);
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
